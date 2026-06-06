@@ -1,0 +1,21 @@
+def hash_function(pwd):
+    return sum(ord(c) for c in pwd) % 10000
+
+def crack_password(target_hash):
+    found_passwords = []
+
+    for num in range(10000):
+        pwd = f"{num:04d}"
+
+        if hash_function(pwd) == target_hash:
+            found_passwords.append(pwd)
+
+    return found_passwords
+
+target_hash = 195
+results = crack_password(target_hash)
+
+if results:
+    print(f"Найденные пароли для хеша {target_hash}: {results}")
+else:
+    print(f"Пароль для хеша {target_hash} не найден")
