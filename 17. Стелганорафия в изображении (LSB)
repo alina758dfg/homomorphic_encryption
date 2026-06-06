@@ -1,0 +1,40 @@
+from PIL import Image
+import numpy as np
+
+def text_to_bits(text):
+    return ''.join(f'{b:08b}' for b in text.encode('utf-8')) + '00000000'
+
+def bits_to_text(bits):
+    bits = bits[:bits.find('00000000')]
+    bits = bits[:len(bits) - len(bits) % 8]
+    return bytes(int(bits[i:i+8], 2) for i in range(0, len(bits), 8)).decode('utf-8')
+
+def encode_lsb(src, dst, msg):
+    img = np.array(Image.open(src).convert('RGB'))
+    bits = text_to_bits(msg)
+    if len(bits) > img.size:
+        raise ValueError("Сообщение слишком длинное")
+    flat = img.ravel()
+    for i, bit in enumerate(bits):
+        flat[i] = (flat[i] & 0xFE) | int(bit)
+    Image.fromarray(img).save(dst)
+    print("Готово:", dst)
+
+def decode_lsb(src):
+    flat = np.array(Image.open(src).convert('RGB')).ravel()
+    bits = ''.join(str(p & 1) for p in flat)
+    return bits_to_text(bits)
+
+original_image = "photo.png"
+encoded_image = "secret.png"
+secret_message = "Hi! How are you?"
+
+encode_lsb(original_image, encoded_image, secret_message)
+extracted = decode_lsb(encoded_image)
+print("Извлечено:", extracted)
+print("Совпадает?" , extracted == secret_message)
+
+orig = np.array(Image.open(original_image))
+secr = np.array(Image.open(encoded_image))
+mse = np.mean((orig - secr) ** 2)
+print(f"MSE: {mse:.6f} (незаметно)" if mse < 1 else "Заметны изменения")
