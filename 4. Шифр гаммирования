@@ -1,0 +1,42 @@
+import binascii
+
+def xor_encrypt_decrypt(data: bytes, key: bytes) -> bytes:
+
+    result = bytearray()
+    key_len = len(key)
+    for i, byte in enumerate(data):
+        result.append(byte ^ key[i % key_len])
+    return bytes(result)
+
+def encrypt_text(text: str, key: str) -> bytes:
+
+    text_bytes = text.encode('utf-8')
+    key_bytes = key.encode('utf-8')
+    return xor_encrypt_decrypt(text_bytes, key_bytes)
+
+def decrypt_bytes(ciphertext: bytes, key: str) -> str:
+
+    key_bytes = key.encode('utf-8')
+    decrypted_bytes = xor_encrypt_decrypt(ciphertext, key_bytes)
+    return decrypted_bytes.decode('utf-8')
+
+if __name__ == "__main__":
+    original_text = "Прикладная информатика"
+    key = "почта"
+
+    print(f"Исходный текст: {original_text}")
+    print(f"Ключ (гамма): {key}")
+
+    # Шифрование
+    encrypted = encrypt_text(original_text, key)
+    print(f"Зашифрованные данные (hex): {binascii.hexlify(encrypted).decode('ascii')}")
+
+    # Дешифрование
+    decrypted_text = decrypt_bytes(encrypted, key)
+    print(f"Расшифрованный текст: {decrypted_text}")
+
+    # Проверка
+    assert original_text == decrypted_text, "Ошибка: расшифрованный текст не совпадает с исходным!"
+    print("Шифрование/дешифрование прошло успешно (XOR симметричен).")
+
+
