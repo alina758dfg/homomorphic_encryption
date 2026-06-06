@@ -1,0 +1,38 @@
+import random, string, math
+
+def password(length):
+    chars = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choices(chars, k=length))
+
+def password_strength(password):
+    lower = upper = digit = punct = False
+    for ch in password:
+        if ch.islower():   lower = True
+        elif ch.isupper(): upper = True
+        elif ch.isdigit(): digit = True
+        elif ch in string.punctuation: punct = True
+
+    alphabet = 0
+    if lower: alphabet += 26
+    if upper: alphabet += 26
+    if digit: alphabet += 10
+    if punct: alphabet += 32
+
+    if alphabet == 0:
+        return 0, "слабый"
+
+    entropy = len(password) * math.log2(alphabet)
+
+    if entropy < 40:
+        level = "слабый"
+    elif entropy < 60:
+        level = "средний"
+    else:
+        level = "сильный"
+
+    return entropy, level
+
+pwd = password(14)
+ent, lev = password_strength(pwd)
+print(f"Пароль: {pwd}")
+print(f"Энтропия: {ent:.1f} бит → {lev}")
