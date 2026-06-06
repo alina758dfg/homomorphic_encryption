@@ -1,0 +1,45 @@
+def mod_pow(base, exp, mod):
+    return pow(base, exp, mod)
+
+def encrypt(m, key, p):
+    return pow(m, key, p)
+
+def decrypt(c, key, p):
+    from math import gcd
+    if gcd(key, p-1) != 1:
+        raise ValueError("Ключ должен быть взаимно прост с p-1")
+    key_inv = pow(key, -1, p-1)
+    return pow(c, key_inv, p)
+
+def main():
+    p = 257
+    key = 5
+
+    m1 = 42
+    m2 = 33
+
+    print(f"Исходные числа: m1 = {m1}, m2 = {m2}")
+    print(f"Модуль p = {p}, ключ k = {key}\n")
+
+    c1 = encrypt(m1, key, p)
+    c2 = encrypt(m2, key, p)
+    print(f"Шифротексты: c1 = {c1}, c2 = {c2}")
+
+    prod_cipher = (c1 * c2) % p
+    print(f"Произведение шифротекстов: {c1} * {c2} mod {p} = {prod_cipher}")
+
+    m_prod = (m1 * m2) % p
+    cipher_of_prod = encrypt(m_prod, key, p)
+    print(f"Шифр произведения m1*m2 = {m_prod} -> {cipher_of_prod}")
+
+    if prod_cipher == cipher_of_prod:
+        print("РАВЕНСТВО выполняется: произведение шифротекстов = шифру произведения")
+    else:
+        print("Равенство не выполняется (при умножении на ключ такого бы не было)")
+
+    decrypted_prod = decrypt(prod_cipher, key, p)
+    print(f"Дешифрованное произведение = {decrypted_prod}")
+    print(f"Исходное произведение = {m_prod} — совпадает!")
+
+if __name__ == "__main__":
+    main()
